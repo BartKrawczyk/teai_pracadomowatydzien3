@@ -15,9 +15,7 @@ public class TeaiPracadomowatydzien3Application {
 
     @Bean
     CommandLineRunner init(CarRepositoryImpl carRepository) {
-        return args -> {
-            carRepository.generateCars();
-        };
+        return args -> carRepository.generateCars();
     }
 }
 

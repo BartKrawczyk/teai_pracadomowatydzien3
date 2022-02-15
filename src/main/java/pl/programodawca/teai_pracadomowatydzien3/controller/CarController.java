@@ -1,19 +1,24 @@
 package pl.programodawca.teai_pracadomowatydzien3.controller;
 
 import org.springframework.http.HttpStatus;
+import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.util.ReflectionUtils;
 import org.springframework.web.bind.annotation.*;
 import pl.programodawca.teai_pracadomowatydzien3.model.Car;
 import pl.programodawca.teai_pracadomowatydzien3.service.CarService;
 
+import javax.print.attribute.standard.Media;
 import java.lang.reflect.Field;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 
 @RestController
-@RequestMapping("/cars")
+@RequestMapping(value = "/cars", produces = {
+        MediaType.APPLICATION_XML_VALUE,
+        MediaType.APPLICATION_JSON_VALUE
+})
 public class CarController {
 
 
@@ -40,7 +45,7 @@ public class CarController {
         return firstCar.map(car -> new ResponseEntity<>(car, HttpStatus.OK)).orElseGet(() -> new ResponseEntity<>(HttpStatus.NOT_FOUND));
     }
 
-    @GetMapping("/color/{color}")
+    @GetMapping( "/color/{color}")
     public ResponseEntity<List<Car>> getCarByColor(@PathVariable("color") String color) {
         List<Car> carsWithColor = carService.getCarByColorService(color);
         if (!carsWithColor.isEmpty()) {
