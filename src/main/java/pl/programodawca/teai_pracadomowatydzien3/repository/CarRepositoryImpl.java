@@ -1,49 +1,74 @@
 package pl.programodawca.teai_pracadomowatydzien3.repository;
 
 import org.springframework.stereotype.Repository;
+import org.springframework.util.ReflectionUtils;
 import pl.programodawca.teai_pracadomowatydzien3.model.Car;
+import pl.programodawca.teai_pracadomowatydzien3.model.Color;
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Optional;
-import java.util.stream.Collectors;
+import java.lang.reflect.Field;
+import java.util.*;
+
+import static java.util.Objects.nonNull;
 
 @Repository
 public class CarRepositoryImpl implements ICarRepository {
 
-    List<Car> cars = new ArrayList<>();
+    private Map<Long, Car> cars = new HashMap<>();
+    private Long counter = 0L;
 
-    public void generateCars() {
-        cars.add(new Car(1L, "Polonez", "Atu", "niebieski"));
-        cars.add(new Car(2L, "Fiat", "125p", "niebieski"));
-        cars.add(new Car(3L, "Ford", "Scorpio", "czarny"));
+    public CarRepositoryImpl() {
+        Car firstCar = new Car(increment(), "Fiat", "125p", Color.NIEBIESKI);
+        Car secondCar = new Car(increment(), "Ford", "Transit", Color.NIEBIESKI);
+        Car thirdCar = new Car(increment(), "Polonez", "Atu", Color.CZARNY);
+        cars.put(firstCar.getId(), firstCar);
+        cars.put(secondCar.getId(), secondCar);
+        cars.put(thirdCar.getId(), thirdCar);
     }
 
-    public List<Car> getCarsRepo() {
-        return cars;
+    private Long increment() {
+        return ++counter;
     }
 
-    public Optional<Car> getCarRepo(Long id) {
-        return cars.stream().filter(c -> c.getId() == id).findFirst();
-    }
-
-    public List<Car> getCarByColorRepo(String color) {
-        List<Car> carsWithColor = cars.stream().filter(car -> car.getColor().equals(color.toLowerCase())).collect(Collectors.toList());
-        return carsWithColor;
-    }
-
-    @Override
-    public boolean addCarRepo(Car car) {
-        return cars.add(car);
+    public List<Car> getCars() {
+        return new ArrayList<>(cars.values());
     }
 
     @Override
-    public Optional<Car> removeCar(long id) {
-        Optional<Car> first = cars.stream().filter(car -> car.getId() == id).findFirst();
-        if (first.isPresent()) {
-            cars.remove(first.get());
-        }
-        return first;
+    public Optional<Car> getCar(Long id) {
+        return Optional.ofNullable(cars.get(id));
+    }
+
+    public void addCar(Car car) {
+        car.setId(increment());
+        cars.put(car.getId(), car);
+    }
+
+    public void updateCar(Long id, Car car) {
+        cars.put(id, car);
+    }
+
+    public Car updatePartialCarData(final Car carToUpdate, final Map<Object, Object> fields) {
+        fields.forEach((key, value) -> {
+            final Field field = ReflectionUtils.findField(Car.class, (String) key);
+            if (nonNull(field)) {
+                field.setAccessible(true);
+                if (((String) key).contentEquals("color")) {
+                    value = Color.valueOf(value.toString().toUpperCase());
+                }
+                ReflectionUtils.setField(field, carToUpdate, value);
+            }
+        });
+        return carToUpdate;
+    }
+
+    public Boolean ifPresentChecker(Long id) {
+        Object value = cars.get(id);
+        return value != null;
+    }
+
+    public void deleteCar(Long id) {
+        cars.remove(id);
     }
 }
+
 

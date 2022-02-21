@@ -3,16 +3,21 @@ package pl.programodawca.teai_pracadomowatydzien3.repository;
 import pl.programodawca.teai_pracadomowatydzien3.model.Car;
 
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 
 public interface ICarRepository {
-    List<Car> getCarsRepo();
+    List<Car> getCars();
 
-    Optional<Car> getCarRepo(Long id);
+    Optional<Car> getCar(Long id);
 
-    List<Car> getCarByColorRepo(String color);
+    void addCar(Car car);
 
-    boolean addCarRepo(Car car);
+    void deleteCar(Long id);
 
-    Optional<Car> removeCar(long id);
+    Boolean ifPresentChecker(Long id);
+
+    void updateCar(Long id, Car car);
+
+    Car updatePartialCarData(final Car carToUpdate, final Map<Object, Object> fields);
 }
